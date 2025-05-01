@@ -1,15 +1,21 @@
-import React from 'react';
-import Header from './components/Header';
-import './App.css';
-import BusBooking from './components/BusBooking';
+import { BrowserRouter as Router,Route,Routes } from 'react-router-dom';
+import Layout from './components/Layout/Layout'
+import HomePage from './pages/HomePage'
+import AuthPage from './pages/AuthPage';
+import UserProfile from './components/Profile/UserProfile';
 
 function App() {
   return (
-    <div className="App">
-      <Header />
-      <BusBooking />
-    </div>
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path='/' element={<HomePage />} />
+          <Route path='/auth' element={<AuthPage />} />
+          <Route path='/profile' element={<UserProfile />} />
+        </Routes>
+      </Layout>
+    </Router>
   );
 }
 
-export default App;
+export default App

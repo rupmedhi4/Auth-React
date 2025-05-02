@@ -1,17 +1,23 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import classes from './AuthForm.module.css';
+import AuthContext from '../context/AuthContext';
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+
+
   const emailRef = useRef();
   const passwordRef = useRef();
+  const authCtx = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
-    setError(null); 
+    setError(null);
   };
 
   const submitHandler = async (event) => {
@@ -36,11 +42,11 @@ const AuthForm = () => {
         body: JSON.stringify({
           email: enteredEmail,
           password: enteredPassword,
-          returnSecureToken: true
+          returnSecureToken: true,
         }),
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       const data = await response.json();
@@ -49,10 +55,9 @@ const AuthForm = () => {
         throw new Error(data.error.message || 'Authentication failed!');
       }
 
-      console.log("Success:", data);
-      alert("Login Successful!");
+      authCtx.login(data.idToken); 
+      navigate('/profile'); 
     } catch (err) {
-      console.error(err);
       setError(err.message);
     }
 
@@ -64,26 +69,28 @@ const AuthForm = () => {
       <h1>{isLogin ? 'Login' : 'Sign Up'}</h1>
       <form onSubmit={submitHandler}>
         <div className={classes.control}>
-          <label htmlFor='email'>Your Email</label>
-          <input type='email' id='email' required ref={emailRef} />
+          <label htmlFor="email">Your Email</label>
+          <input type="email" id="email" required ref={emailRef} />
         </div>
         <div className={classes.control}>
-          <label htmlFor='password'>Your Password</label>
-          <input type='password' id='password' required ref={passwordRef} />
+          <label htmlFor="password">Your Password</label>
+          <input type="password" id="password" required ref={passwordRef} />
         </div>
         <div className={classes.actions}>
-          <button type='submit' disabled={isLoading}>
+          <button type="submit" disabled={isLoading}>
             {isLoading ? 'Sending...' : isLogin ? 'Login' : 'Create Account'}
           </button>
           <button
-            type='button'
+            type="button"
             className={classes.toggle}
             onClick={switchAuthModeHandler}
           >
             {isLogin ? 'Create new account' : 'Login with existing account'}
           </button>
         </div>
-        {error && <p className="text-red-500 text-center mt-2">{error}</p>}
+        {error && (
+          <p className="text-red-500 text-center mt-2">{error}</p>
+        )}
       </form>
     </section>
   );
